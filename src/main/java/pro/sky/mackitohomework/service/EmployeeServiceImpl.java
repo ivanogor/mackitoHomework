@@ -3,27 +3,28 @@ package pro.sky.mackitohomework.service;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import pro.sky.mackitohomework.exception.*;
+import pro.sky.mackitohomework.exception.EmployeeAlreadyAddedException;
+import pro.sky.mackitohomework.exception.EmployeeNotFoundException;
+import pro.sky.mackitohomework.exception.EmployeeStorageIsFullException;
 import pro.sky.mackitohomework.model.Employee;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.isAlpha;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService{
-    private final int MAX_NUMBER_OF_EMPLOYEE = 5;
-    private Map<String, Employee> employeeBook = new HashMap<>();
+    private final Map<String, Employee> employeeBook = new HashMap<>();
     @Override
-    public Employee addEmployee(String firstName, String lastName, int department, double salary) {
+    public Employee addEmployee(Employee employee) {
+        int MAX_NUMBER_OF_EMPLOYEE = 6;
         if (employeeBook.size() < MAX_NUMBER_OF_EMPLOYEE) {
-            String name = firstName + lastName;
+            String name = employee.getFirstName() + employee.getLastName();
             checkArguments(name);
             if (!employeeBook.containsKey(name)) {
-                Employee employee = new Employee(firstName, lastName, department, salary);
                 employeeBook.put(name, employee);
                 return employee;
             } else {
@@ -35,22 +36,20 @@ public class EmployeeServiceImpl implements EmployeeService{
     }
 
     @Override
-    public Employee findEmployee(String firstName, String lastName) {
-        String name = firstName + lastName;
-        checkArguments(name);
-        if (employeeBook.containsKey(name)) {
-            return employeeBook.get(name);
+    public Employee findEmployee(String fullName) {
+        checkArguments(fullName);
+        if (employeeBook.containsKey(fullName)) {
+            return employeeBook.get(fullName);
         } else {
             throw new EmployeeNotFoundException("EmployeeNotFound");
         }
     }
 
     @Override
-    public Employee removeEmployee(String firstName, String lastName) {
-        String name = firstName + lastName;
-        checkArguments(name);
-        Employee employee = employeeBook.get(name);
-        if (employeeBook.remove(name, employee)) {
+    public Employee removeEmployee(String fullName) {
+        checkArguments(fullName);
+        Employee employee = employeeBook.get(fullName);
+        if (employeeBook.remove(fullName, employee)) {
             return employee;
         } else {
             throw new EmployeeNotFoundException("EmployeeNotFound");
@@ -58,8 +57,8 @@ public class EmployeeServiceImpl implements EmployeeService{
     }
 
     @Override
-    public Collection<Employee> displayEmployees() {
-        return Collections.unmodifiableCollection(employeeBook.values());
+    public List<Employee> displayEmployees() {
+        return new ArrayList<>(employeeBook.values().stream().toList());
     }
 
     private void checkArguments(String name) {

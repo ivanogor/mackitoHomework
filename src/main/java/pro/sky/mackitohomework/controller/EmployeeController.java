@@ -3,16 +3,18 @@ package pro.sky.mackitohomework.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import pro.sky.mackitohomework.exception.EmployeeAlreadyAddedException;
+import pro.sky.mackitohomework.exception.EmployeeNotFoundException;
+import pro.sky.mackitohomework.exception.EmployeeStorageIsFullException;
 import pro.sky.mackitohomework.model.Employee;
 import pro.sky.mackitohomework.service.EmployeeService;
-import pro.sky.mackitohomework.exception.*;
 
-import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/employee")
 public class EmployeeController {
-    private static EmployeeService employeeService;
+    private final EmployeeService employeeService;
 
     public EmployeeController(EmployeeService employeeService) {
         this.employeeService = employeeService;
@@ -24,7 +26,8 @@ public class EmployeeController {
                                 @RequestParam("department") int department,
                                 @RequestParam("salary") double salary) {
         try {
-            return employeeService.addEmployee(firstName, lastName, department, salary);
+            Employee employee = new Employee(firstName, lastName, department, salary);
+            return employeeService.addEmployee(employee);
         }
         catch (EmployeeAlreadyAddedException | EmployeeStorageIsFullException e) {
             throw e;
@@ -32,10 +35,9 @@ public class EmployeeController {
     }
 
     @RequestMapping("/remove")
-    public Employee removeEmployee(@RequestParam("firstName") String firstName,
-                                   @RequestParam("lastName") String lastName) {
+    public Employee removeEmployee(@RequestParam("fullName") String fullName) {
         try {
-            return employeeService.removeEmployee(firstName, lastName);
+            return employeeService.removeEmployee(fullName);
         }
         catch (EmployeeNotFoundException e) {
             throw e;
@@ -43,10 +45,9 @@ public class EmployeeController {
     }
 
     @RequestMapping("/find")
-    public Employee findEmployee(@RequestParam("firstName") String firstName,
-                                 @RequestParam("lastName") String lastName) {
+    public Employee findEmployee(@RequestParam("fullName") String fullName) {
         try {
-            return employeeService.findEmployee(firstName, lastName);
+            return employeeService.findEmployee(fullName);
         }
         catch (EmployeeNotFoundException e) {
             throw e;
@@ -54,7 +55,7 @@ public class EmployeeController {
     }
 
     @RequestMapping("/display")
-    public Collection<Employee> displayEmployees() {
+    public List<Employee> displayEmployees() {
         return employeeService.displayEmployees();
     }
 }
