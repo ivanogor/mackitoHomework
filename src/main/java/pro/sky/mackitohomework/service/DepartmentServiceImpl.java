@@ -1,6 +1,7 @@
 package pro.sky.mackitohomework.service;
 
 import org.springframework.stereotype.Service;
+import pro.sky.mackitohomework.exception.EmptyDepartmentException;
 import pro.sky.mackitohomework.model.Employee;
 
 import java.util.HashMap;
@@ -23,16 +24,17 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .filter(employee -> employee.getDepartment() == id)
                 .mapToDouble(Employee::getSalary)
                 .max()
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(EmptyDepartmentException::new);
     }
 
     @Override
     public double findEmployeeWithLowestSalary(int id) {
+
         return employeeService.displayEmployees().stream()
                 .filter(employee -> employee.getDepartment() == id)
                 .mapToDouble(Employee::getSalary)
                 .min()
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(EmptyDepartmentException::new);
     }
 
     @Override
@@ -45,23 +47,31 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public List<Employee> displayEmployeesByDepartment(int id) {
-        return employeeService.displayEmployees().stream()
+        long countOfEmployeesInDepartment = employeeService.displayEmployees().stream()
                 .filter(employee -> employee.getDepartment() == id)
-                .collect(Collectors.toList());
-    }
+                .count();
 
-    @Override
-    public Map<Integer, List<Employee>> displayEmployees() {
-        Map<Integer, List<Employee>> result = new HashMap<>();
-
-        for (int i = 0; i < 5; i++) {
-
-            int finalI = i;
-            result.put(i, employeeService.displayEmployees().stream()
-                    .filter(employee -> employee.getDepartment() == finalI)
-                    .collect(Collectors.toList()));
+        if (countOfEmployeesInDepartment == 0) {
+            throw new EmptyDepartmentException();
         }
 
-        return result;
+            return employeeService.displayEmployees().stream()
+                    .filter(employee -> employee.getDepartment() == id)
+                    .collect(Collectors.toList());
     }
-}
+
+        @Override
+        public Map<Integer, List<Employee>> displayEmployees () {
+            Map<Integer, List<Employee>> result = new HashMap<>();
+
+            for (int i = 0; i < 5; i++) {
+
+                int finalI = i;
+                result.put(i, employeeService.displayEmployees().stream()
+                        .filter(employee -> employee.getDepartment() == finalI)
+                        .collect(Collectors.toList()));
+            }
+
+            return result;
+        }
+    }
