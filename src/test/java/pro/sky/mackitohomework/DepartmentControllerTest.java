@@ -49,7 +49,7 @@ public class DepartmentControllerTest {
 
 
 
-        assertEquals(67000, departmentServiceMock.findEmployeeWithBiggestSalary(2));
+        assertEquals(67000, out.findEmployeeWithBiggestSalary(2));
     }
 
     @Test
