@@ -62,16 +62,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
         @Override
         public Map<Integer, List<Employee>> displayEmployees () {
-            Map<Integer, List<Employee>> result = new HashMap<>();
-
-            for (int i = 0; i < 5; i++) {
-
-                int finalI = i;
-                result.put(i, employeeService.displayEmployees().stream()
-                        .filter(employee -> employee.getDepartment() == finalI)
-                        .collect(Collectors.toList()));
-            }
-
-            return result;
+            return employeeService.displayEmployees().stream()
+                    .collect(Collectors.groupingBy(Employee::getDepartment));
         }
     }

@@ -20,7 +20,7 @@ public class EmployeeServiceImpl implements EmployeeService{
     private final Map<String, Employee> employeeBook = new HashMap<>();
     @Override
     public Employee addEmployee(Employee employee) {
-        int MAX_NUMBER_OF_EMPLOYEE = 6;
+        int MAX_NUMBER_OF_EMPLOYEE = 10;
         if (employeeBook.size() < MAX_NUMBER_OF_EMPLOYEE) {
             String name = employee.getFirstName() + employee.getLastName();
             checkArguments(name);
@@ -58,7 +58,7 @@ public class EmployeeServiceImpl implements EmployeeService{
 
     @Override
     public List<Employee> displayEmployees() {
-        return new ArrayList<>(employeeBook.values().stream().toList());
+        return new ArrayList<>(employeeBook.values());
     }
 
     private void checkArguments(String name) {

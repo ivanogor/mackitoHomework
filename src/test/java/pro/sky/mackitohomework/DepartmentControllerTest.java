@@ -1,74 +1,143 @@
 package pro.sky.mackitohomework;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pro.sky.mackitohomework.controller.DepartmentController;
 import pro.sky.mackitohomework.model.Employee;
 import pro.sky.mackitohomework.service.DepartmentService;
+import pro.sky.mackitohomework.service.DepartmentServiceImpl;
 import pro.sky.mackitohomework.service.EmployeeService;
+import pro.sky.mackitohomework.service.EmployeeServiceImpl;
 
 import javax.lang.model.element.Name;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class DepartmentControllerTest {
     @Mock
-    private EmployeeService employeeServiceMock;
+    private EmployeeServiceImpl employeeServiceMock;
 
-    @Mock
-    private DepartmentService departmentServiceMock;
-
-    @InjectMocks
     private DepartmentController out;
+
+    @BeforeEach
+    public void initOut(){
+        out = new DepartmentController(new DepartmentServiceImpl(employeeServiceMock));
+    }
 
     private static Employee EMPLOYEE0 = new Employee("Иван", "Огорь", 2, 56000);
     private static String NAME_FOR_FIND_EMPLOYEE0 = "ИванОгорь";
 
-    private static List<Employee> LIST_OF_EMPLOYEE = new ArrayList<>(List.of(
-            new Employee("Иван", "Огорь", 2, 56000),
+    private static List<Employee> LIST_OF_EMPLOYEES = new ArrayList<>(List.of(
+            new Employee("Иван", "Огорь", 1, 67000),
             new Employee("Валентина", "Огорь", 1, 53000),
-            new Employee("Дмитрий", "Великанов", 2, 67000),
-            new Employee("Алексей", "Нечаев", 4, 40000),
-            new Employee("Владимир", "Козлов", 2, 37000)
+            new Employee("Дмитрий", "Великанов", 2, 56000),
+            new Employee("Алексей", "Нечаев", 4, 43000),
+            new Employee("Владимир", "Козлов", 3, 37000),
+            new Employee("Семен", "Степанов", 5, 23000),
+            new Employee("Петр", "Иванов", 5, 12000),
+            new Employee("Юлия", "Михайлова", 2, 42000),
+            new Employee("Игорь", "Гриднев", 3, 40000),
+            new Employee("Егор", "Одинцов", 4, 35000)
     ));
 
-    //не понимаю почему возваращает 0 в findEmployeeWithBiggestSalary
-    @Test
-    public void shouldReturnMaxSalaryInDepartment(){
-        when(employeeServiceMock.displayEmployees())
-                .thenReturn(LIST_OF_EMPLOYEE);
+    public static Stream<Arguments> provideParamsForMaxSalary() {
+        return Stream.of(
+                Arguments.of(1, 67000),
+                Arguments.of(2, 56000),
+                Arguments.of(3, 40000),
+                Arguments.of(4, 43000),
+                Arguments.of(5, 23000)
+        );
+    }
 
+    public static Stream<Arguments> provideParamsForMinSalary() {
+        return Stream.of(
+                Arguments.of(1, 53000),
+                Arguments.of(2, 42000),
+                Arguments.of(3, 37000),
+                Arguments.of(4, 35000),
+                Arguments.of(5, 12000)
+        );
+    }
 
+    public static Stream<Arguments> provideParamsForSumSalary() {
+        return Stream.of(
+                Arguments.of(1, 120000),
+                Arguments.of(2, 98000),
+                Arguments.of(3, 77000),
+                Arguments.of(4, 78000),
+                Arguments.of(5, 35000)
+        );
+    }
 
-        assertEquals(67000, out.findEmployeeWithBiggestSalary(2));
+    @ParameterizedTest
+    @MethodSource("provideParamsForMaxSalary")
+    public void shouldReturnMaxSalaryInDepartment(int department, double expected){
+        when(employeeServiceMock.displayEmployees()).thenReturn(LIST_OF_EMPLOYEES);
+
+        assertEquals(expected, out.findEmployeeWithBiggestSalary(department));
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideParamsForMinSalary")
+    public void shouldReturnMinSalaryInDepartment(int department, double expected){
+        when(employeeServiceMock.displayEmployees()).thenReturn(LIST_OF_EMPLOYEES);
+
+        assertEquals(expected, out.findEmployeeWithLowestSalary(department));
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideParamsForSumSalary")
+    public void shouldReturnSumSalaryInDepartment(int department, double expected){
+        when(employeeServiceMock.displayEmployees()).thenReturn(LIST_OF_EMPLOYEES);
+
+        assertEquals(expected, out.sumSalary(department));
     }
 
     @Test
-    public void shouldCallServiceMethodWhenAddRemoveAndFindEmployee(){
-        when(employeeServiceMock.addEmployee(EMPLOYEE0))
-                .thenReturn(EMPLOYEE0);
+    public void shouldReturnMapOfEmployeeGroupingBy(){
+        when(employeeServiceMock.displayEmployees()).thenReturn(LIST_OF_EMPLOYEES);
 
-        when(employeeServiceMock.findEmployee(NAME_FOR_FIND_EMPLOYEE0))
-                .thenReturn(EMPLOYEE0);
+        Map<Integer, List<Employee>> expected =
+                new HashMap<>(Map.of(
+                        1,
+                        new ArrayList<>(List.of(
+                                new Employee("Иван", "Огорь", 1, 67000),
+                                new Employee("Валентина", "Огорь", 1, 53000))),
+                        2,
+                        new ArrayList<>(List.of(
+                                new Employee("Дмитрий", "Великанов", 2, 56000),
+                                new Employee("Юлия", "Михайлова", 2, 42000))),
+                        3,
+                        new ArrayList<>(List.of(
+                                new Employee("Владимир", "Козлов", 3, 37000),
+                                new Employee("Игорь", "Гриднев", 3, 40000))),
+                        4,
+                        new ArrayList<>(List.of(
+                                new Employee("Алексей", "Нечаев", 4, 43000),
+                                new Employee("Егор", "Одинцов", 4, 35000))),
+                        5,
+                        new ArrayList<>(List.of(new Employee("Семен", "Степанов", 5, 23000),
+                                new Employee("Петр", "Иванов", 5, 12000)))
+                ));
 
-        when(employeeServiceMock.removeEmployee(NAME_FOR_FIND_EMPLOYEE0))
-                .thenReturn(EMPLOYEE0);
+        Map<Integer, List<Employee>> actual = out.displayEmployees();
 
-        assertEquals(EMPLOYEE0, employeeServiceMock.addEmployee(EMPLOYEE0));
-        assertEquals(EMPLOYEE0, employeeServiceMock.findEmployee(NAME_FOR_FIND_EMPLOYEE0));
-        assertEquals(EMPLOYEE0, employeeServiceMock.removeEmployee(NAME_FOR_FIND_EMPLOYEE0));
-
-        verify(employeeServiceMock).addEmployee(EMPLOYEE0);
-        verify(employeeServiceMock).findEmployee(NAME_FOR_FIND_EMPLOYEE0);
-        verify(employeeServiceMock).removeEmployee(NAME_FOR_FIND_EMPLOYEE0);
+        assertEquals(expected, actual);
     }
 }
