@@ -6,17 +6,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pro.sky.mackitohomework.controller.DepartmentController;
 import pro.sky.mackitohomework.model.Employee;
-import pro.sky.mackitohomework.service.DepartmentService;
 import pro.sky.mackitohomework.service.DepartmentServiceImpl;
-import pro.sky.mackitohomework.service.EmployeeService;
 import pro.sky.mackitohomework.service.EmployeeServiceImpl;
-
-import javax.lang.model.element.Name;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,8 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class DepartmentControllerTest {
@@ -39,10 +34,8 @@ public class DepartmentControllerTest {
         out = new DepartmentController(new DepartmentServiceImpl(employeeServiceMock));
     }
 
-    private static Employee EMPLOYEE0 = new Employee("Иван", "Огорь", 2, 56000);
-    private static String NAME_FOR_FIND_EMPLOYEE0 = "ИванОгорь";
 
-    private static List<Employee> LIST_OF_EMPLOYEES = new ArrayList<>(List.of(
+    private static final List<Employee> LIST_OF_EMPLOYEES = new ArrayList<>(List.of(
             new Employee("Иван", "Огорь", 1, 67000),
             new Employee("Валентина", "Огорь", 1, 53000),
             new Employee("Дмитрий", "Великанов", 2, 56000),
