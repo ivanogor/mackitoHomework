@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pro.sky.mackitohomework.controller.DepartmentController;
@@ -23,16 +24,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class DepartmentControllerTest {
+public class DepartmentServiceTest {
     @Mock
     private EmployeeServiceImpl employeeServiceMock;
 
-    private DepartmentController out;
+    @InjectMocks
+    private DepartmentServiceImpl out;
 
-    @BeforeEach
-    public void initOut(){
-        out = new DepartmentController(new DepartmentServiceImpl(employeeServiceMock));
-    }
 
 
     private static final List<Employee> LIST_OF_EMPLOYEES = new ArrayList<>(List.of(
